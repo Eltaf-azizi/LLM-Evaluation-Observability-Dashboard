@@ -40,3 +40,43 @@ VARIANT_PROMPTS = {
         "Respond in a friendly way.",
     ],
 }
+
+
+# Reference answer used by SimilarityScorer.
+REFERENCE = "hello world"
+
+# Keywords the KeywordScorer wants to see.
+REQUIRED_KEYWORDS = ["hello", "world"]
+
+# Rubric for the LLM judge.
+RUBRIC = "The answer should be exactly two sentences and include 'hello' and 'world'."
+
+
+# --------------------------------------------------------------------------
+# Helpers
+# --------------------------------------------------------------------------
+def wipe_demo_data() -> int:
+    """Delete any previous rows where prompt_name begins with 'demo_'.
+    Cascades to scores via the FK ON DELETE CASCADE."""
+    with connect() as conn:
+        cur = conn.execute("DELETE FROM calls WHERE prompt_name LIKE 'demo_%'")
+    return cur.rowcount
+
+
+def backdate_calls(days: int = 7) -> None:
+    """Spread demo calls over the last `days` days so /api/scores/timeseries
+    has multiple points. Uses SQLite's datetime() modifiers:
+        datetime('now', '-3 days', '-14 hours')
+    """
+    with connect() as conn:
+        conn.execute(
+            f"""
+            UPDATE calls
+            SET created_at = datetime(
+                'now',
+                '-' || (id % {days}) || ' days',
+                '-' || ((id * 13) % 24) || ' hours'
+            )
+            WHERE prompt_name LIKE 'demo_%'
+            """
+        )
