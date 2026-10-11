@@ -127,3 +127,32 @@ def summarize() -> None:
             "SELECT COUNT(*) AS n FROM calls WHERE prompt_name LIKE 'demo_%'"
         ).fetchone()["n"]
         print(f"\n  total demo calls now in DB: {total}")
+
+
+# --------------------------------------------------------------------------
+# Entry point
+# --------------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--n", type=int, default=120, help="number of calls to log")
+    parser.add_argument("--keep", action="store_true", help="don't wipe existing demo_ data")
+    args = parser.parse_args()
+
+    init_db()
+
+    if not args.keep:
+        removed = wipe_demo_data()
+        print(f"Wiped {removed} previous demo calls.")
+
+    print(f"Logging {args.n} calls (this takes ~{args.n * 0.03:.0f}s in mock mode)...")
+    seed(args.n)
+
+    backdate_calls(days=7)
+    print("Backdated demo calls over the last 7 days.")
+
+    summarize()
+    print("\nDone. Refresh the dashboard: http://localhost:8000/")
+
+
+if __name__ == "__main__":
+    main()
