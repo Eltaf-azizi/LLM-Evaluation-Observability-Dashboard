@@ -80,3 +80,50 @@ def backdate_calls(days: int = 7) -> None:
             WHERE prompt_name LIKE 'demo_%'
             """
         )
+
+
+
+def build_scorers() -> list:
+    return [
+        KeywordScorer(required=REQUIRED_KEYWORDS),
+        SimilarityScorer(reference=REFERENCE),
+        LLMJudgeScorer(rubric=RUBRIC),
+    ]
+
+
+def seed(n: int) -> None:
+    """Log n calls, alternating variants. Prints progress every 20."""
+    scorers = build_scorers()
+    variants = list(VARIANT_PROMPTS.keys())  # ['demo_v1', 'demo_v2']
+
+    for i in range(n):
+        variant = variants[i % len(variants)]
+        prompt = random.choice(VARIANT_PROMPTS[variant])
+        logged_call(prompt, prompt_name=variant, scorers=scorers)
+
+        if (i + 1) % 20 == 0:
+            print(f"  logged {i + 1}/{n}")
+
+
+def summarize() -> None:
+    """Print a quick sanity summary after seeding."""
+    with connect() as conn:
+        print("\n--- summary by variant ---")
+        rows = conn.execute(
+            """
+            SELECT c.prompt_name AS variant,
+                   COUNT(*)      AS n,
+                   AVG(s.score)  AS avg_score
+            FROM calls c
+            JOIN scores s ON s.call_id = c.id
+            WHERE c.prompt_name LIKE 'demo_%' AND s.scorer = 'keyword'
+            GROUP BY c.prompt_name
+            """
+        ).fetchall()
+        for r in rows:
+            print(f"  {r['variant']:8s}  n={r['n']:3d}  avg keyword = {r['avg_score']:.3f}")
+
+        total = conn.execute(
+            "SELECT COUNT(*) AS n FROM calls WHERE prompt_name LIKE 'demo_%'"
+        ).fetchone()["n"]
+        print(f"\n  total demo calls now in DB: {total}")
