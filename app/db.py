@@ -49,3 +49,31 @@ CREATE INDEX IF NOT EXISTS idx_scores_call       ON scores(call_id);
 CREATE INDEX IF NOT EXISTS idx_scores_scorer     ON scores(scorer);
 """
 
+
+def init_db() -> None:
+    """Create tables + indexes if they don't exist. Safe to call every startup."""
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with connect() as conn:
+        conn.executescript(SCHEMA)
+
+
+@contextmanager
+def connect() -> Iterator[sqlite3.Connection]:
+    """Context manager that commits on success, rolls back on error, always closes.
+
+    Usage:
+        with connect() as conn:
+            conn.execute(...)
+    """
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row        # rows behave like dicts
+    conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
