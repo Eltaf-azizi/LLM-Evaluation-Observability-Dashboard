@@ -104,3 +104,30 @@ def list_calls(
             ).fetchall()
     return [dict(r) for r in rows]
 
+
+# --------------------------------------------------------------------------
+# Score over time — one point per day per scorer.
+# --------------------------------------------------------------------------
+@app.get("/api/scores/timeseries")
+def score_timeseries(
+    scorer: str = "keyword",
+    prompt_name: str | None = None,
+) -> list[dict]:
+    sql = """
+        SELECT date(c.created_at) AS day,
+               AVG(s.score)       AS avg_score,
+               COUNT(*)           AS n
+        FROM calls c
+        JOIN scores s ON s.call_id = c.id
+        WHERE s.scorer = ?
+    """
+    params: list = [scorer]
+    if prompt_name:
+        sql += " AND c.prompt_name = ?"
+        params.append(prompt_name)
+    sql += " GROUP BY day ORDER BY day"
+
+    with connect() as conn:
+        rows = conn.execute(sql, params).fetchall()
+    return [dict(r) for r in rows]
+
