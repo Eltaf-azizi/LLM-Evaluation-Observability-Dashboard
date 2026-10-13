@@ -25,3 +25,33 @@ PRICING: dict[str, tuple[float, float]] = {
     "llama-3.3-70b-versatile":(0.59,  0.79),   # Groq
     "mock":                   (0.00,  0.00),
 }
+
+def estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
+    in_p, out_p = PRICING.get(model, (0.0, 0.0))
+    return (prompt_tokens * in_p + completion_tokens * out_p) / 1_000_000
+
+
+@dataclass
+class LLMResult:
+    output: str
+    model: str
+    latency_ms: float
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+    error: Optional[str] = None
+
+
+class LLMClient:
+    """One method: `.complete(prompt) -> LLMResult`. Never raises."""
+
+    def __init__(self) -> None:
+        self.api_key = os.getenv("LLM_API_KEY", "").strip()
+        self.base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
+        self.model = os.getenv("LLM_MODEL", "gpt-4o-mini")
+        self.mock = not self.api_key
+
+        if not self.mock:
+            from openai import OpenAI
+            self._client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+    
