@@ -54,4 +54,37 @@ class LLMClient:
         if not self.mock:
             from openai import OpenAI
             self._client = OpenAI(api_key=self.api_key, base_url=self.base_url)
-    
+
+
+    def complete(self, prompt: str, temperature: float = 0.7) -> LLMResult:
+        return self._mock_complete(prompt) if self.mock else self._real_complete(prompt, temperature)
+
+
+    # ---- real provider -------------------------------------------------
+    def _real_complete(self, prompt: str, temperature: float) -> LLMResult:
+        t0 = time.perf_counter()
+        try:
+            resp = self._client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=temperature,
+            )
+            latency = (time.perf_counter() - t0) * 1000
+            usage = resp.usage
+            return LLMResult(
+                output=resp.choices[0].message.content or "",
+                model=resp.model or self.model,
+                latency_ms=latency,
+                prompt_tokens=usage.prompt_tokens,
+                completion_tokens=usage.completion_tokens,
+                total_tokens=usage.total_tokens,
+            )
+        except Exception as e:
+            # Never raise. Log the error and let the caller persist it.
+            latency = (time.perf_counter() - t0) * 1000
+            return LLMResult(
+                output="", model=self.model, latency_ms=latency,
+                prompt_tokens=0, completion_tokens=0, total_tokens=0,
+                error=f"{type(e).__name__}: {e}",
+            )
+        
