@@ -51,3 +51,28 @@ async def lifespan(_app: FastAPI):
             logged_call(prompt, prompt_name=variant, scorers=_scorers)
 
     yield
+    
+# --------------------------------------------------------------------------
+# Root — the dashboard.
+# --------------------------------------------------------------------------
+@app.get("/", response_class=HTMLResponse)
+def index() -> FileResponse:
+    return FileResponse(STATIC_DIR / "index.html")
+
+
+# --------------------------------------------------------------------------
+# Summary stats for the header cards.
+# --------------------------------------------------------------------------
+@app.get("/api/summary")
+def summary() -> dict:
+    with connect() as conn:
+        row = conn.execute(
+            """
+            SELECT COUNT(*)                              AS total_calls,
+                   COALESCE(SUM(estimated_cost_usd), 0)  AS total_cost_usd,
+                   COALESCE(AVG(latency_ms), 0)          AS avg_latency_ms,
+                   COALESCE(SUM(total_tokens), 0)        AS total_tokens
+            FROM calls
+            """
+        ).fetchone()
+    return dict(row)
