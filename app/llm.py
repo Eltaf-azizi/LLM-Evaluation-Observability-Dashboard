@@ -87,4 +87,24 @@ class LLMClient:
                 prompt_tokens=0, completion_tokens=0, total_tokens=0,
                 error=f"{type(e).__name__}: {e}",
             )
-        
+    
+    
+    # ---- mock provider -------------------------------------------------
+    def _mock_complete(self, prompt: str) -> LLMResult:
+        t0 = time.perf_counter()
+        time.sleep(0.03)
+
+        # If the judge scorer is calling, emulate its JSON contract so the
+        # whole pipeline is testable without an API key.
+        if "[[JUDGE_JSON]]" in prompt:
+            output = '{"score": 7, "reason": "[MOCK judge] Reasonable answer."}'
+        else:
+            output = f"[MOCK] Re: '{prompt[:60]}...' — this is a plausible answer."
+
+        latency = (time.perf_counter() - t0) * 1000
+        pt = max(1, len(prompt) // 4)
+        ct = max(1, len(output) // 4)
+        return LLMResult(
+            output=output, model="mock", latency_ms=latency,
+            prompt_tokens=pt, completion_tokens=ct, total_tokens=pt + ct,
+        )
