@@ -76,3 +76,31 @@ def summary() -> dict:
             """
         ).fetchone()
     return dict(row)
+
+
+
+# --------------------------------------------------------------------------
+# Recent calls list. Query params: limit (int), prompt_name (str, optional).
+# --------------------------------------------------------------------------
+@app.get("/api/calls")
+def list_calls(
+    limit: int = Query(20, ge=1, le=500),
+    prompt_name: str | None = None,
+) -> list[dict]:
+    with connect() as conn:
+        if prompt_name:
+            rows = conn.execute(
+                """
+                SELECT * FROM calls
+                WHERE prompt_name = ?
+                ORDER BY id DESC LIMIT ?
+                """,
+                (prompt_name, limit),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM calls ORDER BY id DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+    return [dict(r) for r in rows]
+
