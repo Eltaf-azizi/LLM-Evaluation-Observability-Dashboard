@@ -161,3 +161,45 @@ def score_distribution(
         for i in range(bins)
     ]
 
+
+# --------------------------------------------------------------------------
+# A/B comparison between two prompt_name variants.
+# --------------------------------------------------------------------------
+@app.get("/api/ab")
+def ab_compare(p1: str, p2: str) -> dict:
+    with connect() as conn:
+        variants = conn.execute(
+            """
+            SELECT c.prompt_name                    AS variant,
+                   COUNT(*)                         AS n,
+                   AVG(c.latency_ms)                AS avg_latency_ms,
+                   AVG(c.total_tokens)              AS avg_tokens,
+                   COALESCE(SUM(c.estimated_cost_usd), 0) AS total_cost_usd
+            FROM calls c
+            WHERE c.prompt_name IN (?, ?)
+            GROUP BY c.prompt_name
+            """,
+            (p1, p2),
+        ).fetchall()
+
+        scores = conn.execute(
+            """
+            SELECT c.prompt_name AS variant,
+                   s.scorer      AS scorer,
+                   AVG(s.score)  AS avg_score,
+                   COUNT(*)      AS n
+            FROM calls c
+            JOIN scores s ON s.call_id = c.id
+            WHERE c.prompt_name IN (?, ?)
+            GROUP BY c.prompt_name, s.scorer
+            ORDER BY s.scorer, c.prompt_name
+            """,
+            (p1, p2),
+        ).fetchall()
+
+    return {
+        "p1": p1,
+        "p2": p2,
+        "variants": [dict(v) for v in variants],
+        "scores": [dict(s) for s in scores],
+    }
