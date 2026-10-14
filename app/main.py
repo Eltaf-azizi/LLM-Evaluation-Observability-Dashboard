@@ -131,3 +131,33 @@ def score_timeseries(
         rows = conn.execute(sql, params).fetchall()
     return [dict(r) for r in rows]
 
+
+# --------------------------------------------------------------------------
+# Score distribution — histogram buckets.
+# --------------------------------------------------------------------------
+@app.get("/api/scores/distribution")
+def score_distribution(
+    scorer: str = "keyword",
+    bins: int = Query(10, ge=2, le=50),
+) -> list[dict]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT score FROM scores WHERE scorer = ?",
+            (scorer,),
+        ).fetchall()
+
+    counts = [0] * bins
+    for r in rows:
+        idx = min(int(r["score"] * bins), bins - 1)
+        counts[idx] += 1
+
+    return [
+        {
+            "lo": i / bins,
+            "hi": (i + 1) / bins,
+            "label": f"{i / bins:.1f}-{(i + 1) / bins:.1f}",
+            "count": counts[i],
+        }
+        for i in range(bins)
+    ]
+
