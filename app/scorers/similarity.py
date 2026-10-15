@@ -30,3 +30,33 @@ def _cosine(a: Counter, b: Counter) -> float:
         return 0.0
     return dot / (norm_a * norm_b)
 
+
+class SimilarityScorer:
+    name = "similarity"
+
+    def __init__(self, reference: str, ignore: list[str] | None = None) -> None:
+        """`reference` is the gold-standard answer you compare against.
+        `ignore` is an optional stopword list (e.g. ['the', 'a', 'is']).
+        """
+        self.reference = reference
+        self.ignore = set(ignore or [])
+
+    def _clean(self, text: str) -> Counter:
+        vec = _vectorize(text)
+        for w in self.ignore:
+            vec.pop(w, None)
+        return vec
+
+    def score(self, prompt: str, output: str) -> Score:
+        a = self._clean(output)
+        b = self._clean(self.reference)
+        sim = _cosine(a, b)
+        return Score(
+            name=self.name,
+            value=sim,
+            details={
+                "reference_excerpt": self.reference[:120],
+                "output_excerpt": output[:120],
+                "overlap_terms": sorted(set(a) & set(b))[:20],
+            },
+        )
