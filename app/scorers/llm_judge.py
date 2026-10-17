@@ -29,3 +29,41 @@ Return ONLY compact JSON in this exact shape:
 """
 
 _JSON_RE = re.compile(r"\{.*\}", re.DOTALL)
+
+
+class LLMJudgeScorer:
+    name = "llm_judge"
+
+    def __init__(self, rubric: str, client: LLMClient | None = None) -> None:
+        self.rubric = rubric
+        self.client = client or LLMClient()
+
+    def score(self, prompt: str, output: str) -> Score:
+        judge_prompt = JUDGE_TEMPLATE.format(
+            rubric=self.rubric, prompt=prompt, output=output
+        )
+        result = self.client.complete(judge_prompt, temperature=0.0)
+
+        if result.error:
+            return Score(self.name, 0.0, {"error": result.error})
+
+        raw = result.output.strip()
+        match = _JSON_RE.search(raw)
+        if not match:
+            return Score(self.name, 0.0, {"parse_error": "no JSON found", "raw": raw[:200]})
+
+        try:
+            data = json.loads(match.group(0))
+            raw_score = float(data["score"])
+            reason = str(data.get("reason", ""))[:300]
+        except (json.JSONDecodeError, KeyError, ValueError, TypeError) as e:
+            return Score(self.name, 0.0, {"parse_error": str(e), "raw": raw[:200]})
+
+        # 0-10 -> 0.0-1.0, and clamp defensively
+        value = max(0.0, min(1.0, raw_score / 10.0))
+        return Score(
+            name=self.name,
+            value=value,
+            details={"raw_score": raw_score, "reason": reason},
+        )
+        
