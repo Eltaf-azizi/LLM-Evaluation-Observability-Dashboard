@@ -52,5 +52,48 @@
     .loser  { color: #f87171; }
   </style>
 </head>
+<body>
+  <header>
+    <div>
+      <h1>LLM Eval Dashboard</h1>
+      <h2 id="subtitle">Loading…</h2>
+    </div>
+    <button onclick="refresh()">Refresh</button>
+  </header>
 
+  <section class="cards">
+    <div class="card"><div class="label">Total calls</div><div class="value" id="stat-calls">–</div></div>
+    <div class="card"><div class="label">Total cost</div><div class="value" id="stat-cost">–</div></div>
+    <div class="card"><div class="label">Avg latency</div><div class="value" id="stat-latency">–</div></div>
+    <div class="card"><div class="label">Total tokens</div><div class="value" id="stat-tokens">–</div></div>
+  </section>
+
+  <section class="grid-2">
+    <div class="panel">
+      <h2>Score over time — <select id="ts-scorer"></select></h2>
+      <canvas id="chart-timeseries" height="120"></canvas>
+    </div>
+    <div class="panel">
+      <h2>Score distribution — <select id="dist-scorer"></select></h2>
+      <canvas id="chart-distribution" height="120"></canvas>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>A/B Comparison</h2>
+    <div class="ab-controls">
+      <label>Prompt A: <input id="p1" value="greeting_v1"></label>
+      <label>Prompt B: <input id="p2" value="greeting_v2"></label>
+      <button onclick="loadAB()">Compare</button>
+    </div>
+    <table id="ab-table">
+      <thead>
+        <tr><th>Metric</th><th>Prompt A</th><th>Prompt B</th><th>Δ (B − A)</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <script src="/static/dashboard.js"></script>
+</body>
 </html>
