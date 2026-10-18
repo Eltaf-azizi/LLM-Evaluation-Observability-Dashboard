@@ -68,3 +68,40 @@ async function loadTimeseries() {
     },
   });
 }
+
+
+// ---------- histogram: score distribution ---------------------------------
+async function loadDistribution() {
+  const scorer = document.getElementById("dist-scorer").value;
+  const rows = await jget(`/api/scores/distribution?scorer=${scorer}`);
+
+  const labels = rows.map(r => r.label);
+  const values = rows.map(r => r.count);
+
+  if (distChart) {
+    distChart.data.labels = labels;
+    distChart.data.datasets[0].data = values;
+    distChart.update();
+    return;
+  }
+
+  distChart = new Chart(document.getElementById("chart-distribution"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "count",
+        data: values,
+        backgroundColor: "#38bdf8",
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, ticks: { color: "#94a3b8", precision: 0 }, grid: { color: "#334155" } },
+        x: { ticks: { color: "#94a3b8" }, grid: { display: false } },
+      },
+      plugins: { legend: { display: false } },
+    },
+  });
+}
