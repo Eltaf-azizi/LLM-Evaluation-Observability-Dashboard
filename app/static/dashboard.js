@@ -105,3 +105,52 @@ async function loadDistribution() {
     },
   });
 }
+
+// ---------- A/B table ------------------------------------------------------
+async function loadAB() {
+  const p1 = document.getElementById("p1").value.trim();
+  const p2 = document.getElementById("p2").value.trim();
+  const data = await jget(`/api/ab?p1=${encodeURIComponent(p1)}&p2=${encodeURIComponent(p2)}`);
+
+  // Index variants by name for easy lookup
+  const v = Object.fromEntries(data.variants.map(x => [x.variant, x]));
+
+  // Rows: latency, tokens, cost, then one per scorer
+  const rows = [
+    ["n",   v[p1]?.n ?? 0,   v[p2]?.n ?? 0,  null],
+    ["avg latency (ms)", v[p1]?.avg_latency_ms, v[p2]?.avg_latency_ms, "lower"],
+    ["avg tokens",       v[p1]?.avg_tokens,     v[p2]?.avg_tokens,     "lower"],
+    ["total cost (USD)", v[p1]?.total_cost_usd, v[p2]?.total_cost_usd, "lower"],
+  ];
+
+  // Score rows: for each scorer, avg_score per variant
+  const scorers = [...new Set(data.scores.map(s => s.scorer))].sort();
+  for (const sc of scorers) {
+    const a = data.scores.find(s => s.scorer === sc && s.variant === p1);
+    const b = data.scores.find(s => s.scorer === sc && s.variant === p2);
+    rows.push([`score · ${sc}`, a?.avg_score, b?.avg_score, "higher"]);
+  }
+
+  const tbody = document.querySelector("#ab-table tbody");
+  tbody.innerHTML = rows.map(([label, a, b, prefer]) => {
+    const aNum = typeof a === "number" ? a : null;
+    const bNum = typeof b === "number" ? b : null;
+    const delta = (aNum !== null && bNum !== null) ? (bNum - aNum) : null;
+
+    let aClass = "", bClass = "";
+    if (prefer && aNum !== null && bNum !== null && aNum !== bNum) {
+      const aWins = prefer === "higher" ? aNum > bNum : aNum < bNum;
+      aClass = aWins ? "winner" : "loser";
+      bClass = aWins ? "loser"  : "winner";
+    }
+
+    const fmtCell = (n, digits = 3) => (typeof n === "number" ? n.toFixed(digits) : (n ?? "–"));
+
+    return `<tr>
+      <td>${label}</td>
+      <td class="num ${aClass}">${fmtCell(aNum)}</td>
+      <td class="num ${bClass}">${fmtCell(bNum)}</td>
+      <td class="num">${delta === null ? "–" : (delta >= 0 ? "+" : "") + delta.toFixed(3)}</td>
+    </tr>`;
+  }).join("");
+}
