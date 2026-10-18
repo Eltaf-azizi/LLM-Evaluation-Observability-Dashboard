@@ -154,3 +154,28 @@ async function loadAB() {
     </tr>`;
   }).join("");
 }
+
+
+// ---------- wiring ---------------------------------------------------------
+function populateScorerSelects() {
+  for (const id of ["ts-scorer", "dist-scorer"]) {
+    const sel = document.getElementById(id);
+    sel.innerHTML = SCORERS.map(s => `<option value="${s}">${s}</option>`).join("");
+  }
+  document.getElementById("ts-scorer").addEventListener("change", loadTimeseries);
+  document.getElementById("dist-scorer").addEventListener("change", loadDistribution);
+}
+
+async function refresh() {
+  try {
+    await Promise.all([loadSummary(), loadTimeseries(), loadDistribution(), loadAB()]);
+  } catch (e) {
+    console.error(e);
+    alert("Failed to load: " + e.message);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  populateScorerSelects();
+  refresh();
+});
