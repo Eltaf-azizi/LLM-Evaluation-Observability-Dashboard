@@ -17,3 +17,15 @@ async function jget(url) {
   if (!r.ok) throw new Error(`${url} → ${r.status}`);
   return r.json();
 }
+
+
+// ---------- header stat cards ---------------------------------------------
+async function loadSummary() {
+  const d = await jget("/api/summary");
+  document.getElementById("stat-calls").textContent = d.total_calls;
+  document.getElementById("stat-cost").textContent = "$" + fmt(d.total_cost_usd, 4);
+  document.getElementById("stat-latency").textContent = fmt(d.avg_latency_ms, 0) + "ms";
+  document.getElementById("stat-tokens").textContent = d.total_tokens;
+  document.getElementById("subtitle").textContent =
+    `${d.total_calls} calls · ${d.total_tokens} tokens · $${fmt(d.total_cost_usd, 4)}`;
+}
