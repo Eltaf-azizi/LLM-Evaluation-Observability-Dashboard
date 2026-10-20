@@ -21,3 +21,15 @@ So the whole point of this project was to answer one question:
 > *If I change my prompt from V1 to V2, is V2 actually better? And by how much?*
 
 The answer is now a chart instead of a feeling.
+
+---
+
+## ✨ What it does
+
+- **📝 Logs every LLM call** — prompt, output, latency, tokens, estimated cost, error (if any)
+- **🎰 Three pluggable scorers** — keyword/regex, cosine similarity, and LLM-as-judge
+- **💾 Persists to SQLite** — one file, zero ops, handles 100k+ rows easily
+- **📊 Live dashboard** — score over time, score distribution, cost, token counts
+- **🆚 A/B comparison** — see two prompt variants side by side with a green/red winner column
+- **🚀 Deploys to Render** — free tier, auto-seeds on cold start, always shows data
+
