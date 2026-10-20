@@ -33,3 +33,10 @@ The answer is now a chart instead of a feeling.
 - **🆚 A/B comparison** — see two prompt variants side by side with a green/red winner column
 - **🚀 Deploys to Render** — free tier, auto-seeds on cold start, always shows data
 
+---
+
+## 📸 Screenshots
+
+> *[ Add 2-3 screenshots here — the dashboard, the /docs page, and the A/B table. Take them with Win+Shift+S, drag into the README editor in GitHub, and GitHub will host them for you. ]*
+
+---
