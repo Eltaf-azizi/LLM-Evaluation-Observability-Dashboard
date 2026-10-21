@@ -40,3 +40,37 @@ The answer is now a chart instead of a feeling.
 > *[ Add 2-3 screenshots here — the dashboard, the /docs page, and the A/B table. Take them with Win+Shift+S, drag into the README editor in GitHub, and GitHub will host them for you. ]*
 
 ---
+
+## 🏗️ Architecture
+
+The whole thing is deliberately boring on the infra side — no Kubernetes, no Redis, no microservices. Just FastAPI + SQLite + vanilla JS. Because I'm 17 and I don't have time to debug Kubernetes, and *neither should you*.
+```
+┌──────────────────────────────────────────────┐
+│ Browser (Chart.js dashboard) │
+└───────────────────┬──────────────────────────┘
+│ fetch() JSON
+┌───────────────────▼──────────────────────────┐
+│ FastAPI │
+│ /api/summary /api/calls │
+│ /api/scores/timeseries │
+│ /api/scores/distribution │
+│ /api/ab │
+└───────────────────┬──────────────────────────┘
+│ Python
+┌───────────────────▼──────────────────────────┐
+│ logged_call() wrapper │
+│ 1. call LLM 2. time it 3. INSERT call │
+│ 4. run scorers 5. INSERT scores │
+└───┬──────────────────────────────────┬───────┘
+│ │
+┌───▼────────────┐ ┌──────────▼───────┐
+│ LLMClient │ │ Scorers │
+│ OpenAI- │ │ • keyword │
+│ compatible │ │ • similarity │
+│ (works w/ │ │ • llm_judge │
+│ Groq, Ollama, │ │ │
+│ OpenAI, LM │ │ │
+│ Studio) │ │ │
+└────────────────┘ └──────────────────┘
+```
+
