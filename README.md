@@ -8,7 +8,7 @@ Built this as part of my Year 1 handbook grind — but honestly it stopped feeli
 
 ---
 
-## 🎯 The problem I was trying to solve
+## The problem I was trying to solve
 
 Here's the thing nobody tells you about prompt engineering:
 
@@ -24,14 +24,14 @@ The answer is now a chart instead of a feeling.
 
 ---
 
-## ✨ What it does
+## What it does
 
-- **📝 Logs every LLM call** — prompt, output, latency, tokens, estimated cost, error (if any)
-- **🎰 Three pluggable scorers** — keyword/regex, cosine similarity, and LLM-as-judge
-- **💾 Persists to SQLite** — one file, zero ops, handles 100k+ rows easily
-- **📊 Live dashboard** — score over time, score distribution, cost, token counts
-- **🆚 A/B comparison** — see two prompt variants side by side with a green/red winner column
-- **🚀 Deploys to Render** — free tier, auto-seeds on cold start, always shows data
+- ** Logs every LLM call** — prompt, output, latency, tokens, estimated cost, error (if any)
+- ** Three pluggable scorers** — keyword/regex, cosine similarity, and LLM-as-judge
+- ** Persists to SQLite** — one file, zero ops, handles 100k+ rows easily
+- ** Live dashboard** — score over time, score distribution, cost, token counts
+- ** A/B comparison** — see two prompt variants side by side with a green/red winner column
+- ** Deploys to Render** — free tier, auto-seeds on cold start, always shows data
 
 ---
 
@@ -41,7 +41,7 @@ The answer is now a chart instead of a feeling.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 The whole thing is deliberately boring on the infra side — no Kubernetes, no Redis, no microservices. Just FastAPI + SQLite + vanilla JS. Because I'm 17 and I don't have time to debug Kubernetes, and *neither should you*.
 ```
@@ -74,3 +74,14 @@ The whole thing is deliberately boring on the infra side — no Kubernetes, no R
 └────────────────┘ └──────────────────┘
 ```
 
+---
+
+### Two decisions that made everything else easy
+
+**1. `calls` and `scores` are separate tables.**
+One call → many scores (one per scorer). This is what makes scorers *pluggable*. Want a fourth scorer? Register it. Next call logs four scores instead of three. Zero schema changes, zero wrapper changes.
+
+**2. Every scorer returns `0.0 – 1.0`.**
+Clamped defensively in a `Score` dataclass. This is what makes the charts *honest*. If keyword returns 0-1 and judge returns 0-10, the chart lies. Force everything into the same range and the chart tells the truth.
+
+---
