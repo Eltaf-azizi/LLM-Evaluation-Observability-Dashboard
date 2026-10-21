@@ -110,3 +110,10 @@ Then open:
  - http://localhost:8000/ — the dashboard
  - http://localhost:8000/docs — FastAPI's auto-generated API explorer (this thing is chef's kiss)
 ```
+
+## The three scorers (and why there are three)
+
+keyword — the dumbest, most useful one
+Score = fraction of required keywords that appear in the output. Optional banned-word list (score goes to 0.0 if any are hit).
+
+Looks naive. Isn't. It's free, deterministic, and instant. It's the scorer that tells you whether your prompt change actually made the model use the words you wanted. Every eval suite in production starts here — even OpenAI's own benchmarks use this class of scorer.
