@@ -85,3 +85,28 @@ One call → many scores (one per scorer). This is what makes scorers *pluggable
 Clamped defensively in a `Score` dataclass. This is what makes the charts *honest*. If keyword returns 0-1 and judge returns 0-10, the chart lies. Force everything into the same range and the chart tells the truth.
 
 ---
+
+## 🚀 Running it locally
+
+```bash
+git clone https://github.com/YOUR_USERNAME/llm-eval-dashboard.git
+cd llm-eval-dashboard
+
+python -m venv .venv
+.venv\Scripts\activate    # Windows
+source .venv/bin/activate  # macOS/Linux
+
+pip install -r requirements.txt
+cp .env.example .env       # leave LLM_API_KEY empty for mock mode
+
+# Optional: seed some data so the dashboard isn't empty
+python seed.py
+
+# Start the server
+uvicorn app.main:app --reload
+
+Then open:
+
+ - http://localhost:8000/ — the dashboard
+ - http://localhost:8000/docs — FastAPI's auto-generated API explorer (this thing is chef's kiss)
+```
