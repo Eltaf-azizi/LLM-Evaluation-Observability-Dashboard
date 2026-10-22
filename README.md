@@ -140,3 +140,9 @@ Not gonna lie — this project taught me more than any tutorial could, because I
  - Mocks leak into metrics — my mock returns prompt[:60] echoed back. Some keywords got truncated. So my "keyword score" wasn't 1.0 even when the prompt clearly said the word. The numbers were real, but they were      measuring the mock, not the prompt. Never trust absolute values from mock data. Only trust relative comparisons.
  - % vs %% — spent 10 minutes debugging a sqlite3.OperationalError: near "%" because I used %% in an f-string. f-strings and old %-formatting are different worlds. What a way to learn.
  - --host 0.0.0.0 — hard-coding localhost works on your laptop and fails in a container. The container has its own localhost. 0.0.0.0 means "listen on every interface" which is what a cloud host's proxy needs. Small flag,  huge lesson.
+
+## Definition of Done (yes I actually checked these)
+ - Logs ≥100 calls (120 demo calls across 2 prompt variants)
+ - A/B comparison works and is visibly different (demo_v1: 0.742 keyword / demo_v2: 0.000)
+ - Charts render (line chart, histogram, A/B table — all live)
+ - Deployed to Render (link below)
