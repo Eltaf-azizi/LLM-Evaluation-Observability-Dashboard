@@ -113,7 +113,23 @@ Then open:
 
 ## The three scorers (and why there are three)
 
-keyword — the dumbest, most useful one
+`keyword`  the dumbest, most useful one
 Score = fraction of required keywords that appear in the output. Optional banned-word list (score goes to 0.0 if any are hit).
 
-Looks naive. Isn't. It's free, deterministic, and instant. It's the scorer that tells you whether your prompt change actually made the model use the words you wanted. Every eval suite in production starts here — even OpenAI's own benchmarks use this class of scorer.
+Looks naive. Isn't. It's free, deterministic, and instant. It's the scorer that tells you whether your prompt change actually made the model use the words you wanted. Every eval suite in production starts here  even OpenAI's own benchmarks use this class of scorer.
+
+`similarity`  cosine over bag-of-words
+Turn both output and reference answer into token-count vectors, then compute cosine similarity. It's the mathematical "how alike are these two texts" that doesn't require a PhD.
+
+Known weakness: it punishes verbosity. If your reference is "hello world" (2 tokens) and your output is 20 tokens, similarity is low even if the output is great. That's the bag-of-words tax. Upgrade path: swap the vectorizer for an embeddings call and you get semantic similarity for free — same scorer interface, better signal.
+
+`llm_judge`  the most powerful and most dangerous
+Ask a judge model: "given this rubric, rate this output 0–10 with one reason." Parse the JSON. Normalize to 0–1.
+
+Three things I learned the hard way:
+
+ 1. Judges are biased. They prefer longer answers. They prefer outputs from their own model family. They're order-sensitive. Never trust a judge score in isolation.
+ 2. Always ask for JSON. Prose is unparseable, and an unparseable judge is worse than no judge at all.
+ 3. Always have a fallback. If JSON parsing fails, log the raw response and score 0.0. Never let one bad judge call crash your pipeline.
+
+
