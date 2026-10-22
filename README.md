@@ -132,4 +132,11 @@ Three things I learned the hard way:
  2. Always ask for JSON. Prose is unparseable, and an unparseable judge is worse than no judge at all.
  3. Always have a fallback. If JSON parsing fails, log the raw response and score 0.0. Never let one bad judge call crash your pipeline.
 
+## What I actually learned building this
+Not gonna lie — this project taught me more than any tutorial could, because I had to feel the pain of each thing:
 
+ - GROUP BY date(created_at) — I thought SQL aggregation was boring. Then I needed to fit 120 calls into a 7-point line chart. Suddenly it's the most useful line of code in the app.
+ - Ephemeral filesystems are real — I seeded 120 calls, checked back in an hour, and the dashboard was empty. Turns out Render's free tier spins down containers and wipes the disk. Fixed it with a startup hook that auto-    seeds if the DB is empty. That's a lesson you don't get from a blog post.
+ - Mocks leak into metrics — my mock returns prompt[:60] echoed back. Some keywords got truncated. So my "keyword score" wasn't 1.0 even when the prompt clearly said the word. The numbers were real, but they were      measuring the mock, not the prompt. Never trust absolute values from mock data. Only trust relative comparisons.
+ - % vs %% — spent 10 minutes debugging a sqlite3.OperationalError: near "%" because I used %% in an f-string. f-strings and old %-formatting are different worlds. What a way to learn.
+ - --host 0.0.0.0 — hard-coding localhost works on your laptop and fails in a container. The container has its own localhost. 0.0.0.0 means "listen on every interface" which is what a cloud host's proxy needs. Small flag,  huge lesson.
