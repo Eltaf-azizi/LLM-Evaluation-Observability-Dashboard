@@ -147,6 +147,17 @@ Not gonna lie — this project taught me more than any tutorial could, because I
  - Charts render (line chart, histogram, A/B table — all live)
  - Deployed to Render (link below)
 
+## Roadmap (things I want to add next)
+The current app answers "which prompt is better?" The next things answer "did it get worse?" and "how do I show this to someone who doesn't have the dashboard open?" — both of those are what turn a demo into a real product.
+
+ - Regression alerts email/Slack notification when average score drops > 10% week-over-week
+ - PDF export — one-click report of the current week's stats, so I can send it to someone
+ - Embedding-based similarity — swap bag-of-words for real semantic similarity
+ - Prompt versioning UI — manage prompt variants without editing Python files
+ - Persistent disk on Render — $5/month, fixes the "DB vanishes" problem properly
+ - Turso migration — managed SQLite in the cloud, no more persistence worries
+None of these are "someday maybe" — they're all speced out and one weekend away. This project is alive.
+
 ## Tech stack
  - Backend: FastAPI + Uvicorn
  - Database: SQLite (with WAL mode for concurrent read/write)
