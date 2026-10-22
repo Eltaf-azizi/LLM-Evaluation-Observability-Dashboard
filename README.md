@@ -146,3 +146,12 @@ Not gonna lie — this project taught me more than any tutorial could, because I
  - A/B comparison works and is visibly different (demo_v1: 0.742 keyword / demo_v2: 0.000)
  - Charts render (line chart, histogram, A/B table — all live)
  - Deployed to Render (link below)
+
+## Tech stack
+ - Backend: FastAPI + Uvicorn
+ - Database: SQLite (with WAL mode for concurrent read/write)
+ - LLM client: openai-python (works with any OpenAI-compatible endpoint)
+ - Frontend: Vanilla HTML/CSS/JS + Chart.js via CDN
+ - Deploy: Render free tier
+
+No frameworks used that I couldn't explain. No React, no Docker, no Terraform. Every layer is something I can debug at 2 AM without Googling the error message.
