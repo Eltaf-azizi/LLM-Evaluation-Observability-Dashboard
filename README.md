@@ -141,11 +141,15 @@ Not gonna lie — this project taught me more than any tutorial could, because I
  - % vs %% — spent 10 minutes debugging a sqlite3.OperationalError: near "%" because I used %% in an f-string. f-strings and old %-formatting are different worlds. What a way to learn.
  - --host 0.0.0.0 — hard-coding localhost works on your laptop and fails in a container. The container has its own localhost. 0.0.0.0 means "listen on every interface" which is what a cloud host's proxy needs. Small flag,  huge lesson.
 
+---
+
 ## Definition of Done (yes I actually checked these)
  - Logs ≥100 calls (120 demo calls across 2 prompt variants)
  - A/B comparison works and is visibly different (demo_v1: 0.742 keyword / demo_v2: 0.000)
  - Charts render (line chart, histogram, A/B table — all live)
  - Deployed to Render (link below)
+
+---
 
 ## Roadmap (things I want to add next)
 The current app answers "which prompt is better?" The next things answer "did it get worse?" and "how do I show this to someone who doesn't have the dashboard open?" — both of those are what turn a demo into a real product.
@@ -158,6 +162,8 @@ The current app answers "which prompt is better?" The next things answer "did it
  - Turso migration — managed SQLite in the cloud, no more persistence worries
 None of these are "someday maybe" — they're all speced out and one weekend away. This project is alive.
 
+---
+
 ## Tech stack
  - Backend: FastAPI + Uvicorn
  - Database: SQLite (with WAL mode for concurrent read/write)
@@ -167,6 +173,7 @@ None of these are "someday maybe" — they're all speced out and one weekend awa
 
 No frameworks used that I couldn't explain. No React, no Docker, no Terraform. Every layer is something I can debug at 2 AM without Googling the error message.
 
+---
 
 ## Notes on what I did with the voice
 
@@ -190,3 +197,12 @@ A few things to know:
 - The **Screenshots** section (2-3 screenshots — dashboard, `/docs`, A/B table)
 - **"About me"** links — leave blank if you don't want them, or add your actual Twitter/LinkedIn
 - The **live Render URL** — add it right under the title as `**[🚀 Live Demo](https://your-url.onrender.com)**` once you deploy
+
+---
+
+## Optional: a header image
+
+If you want the README to look extra polished, take a screenshot of your dashboard, add it to the repo as `docs/dashboard.png`, and add at the very top:
+
+```markdown
+![Dashboard](./docs/dashboard.png)
