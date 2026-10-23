@@ -182,3 +182,11 @@ A few things to know:
 
 5. **The "About me" section is minimal on purpose.** Don't fake professional experience. Just "Year 1, shipping small things" — which is *more* than most bootcamp grads can say.
 
+---
+
+## Things to fill in before you push
+
+- `YOUR_USERNAME` in the git clone URL
+- The **Screenshots** section (2-3 screenshots — dashboard, `/docs`, A/B table)
+- **"About me"** links — leave blank if you don't want them, or add your actual Twitter/LinkedIn
+- The **live Render URL** — add it right under the title as `**[🚀 Live Demo](https://your-url.onrender.com)**` once you deploy
