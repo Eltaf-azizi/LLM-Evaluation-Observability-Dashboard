@@ -175,6 +175,13 @@ No frameworks used that I couldn't explain. No React, no Docker, no Terraform. E
 
 ---
 
+## Want to steal this?
+MIT license, go wild. If you build something cooler on top of it, tag me — I'd genuinely love to see it.
+
+If you find a bug, open an issue. If you find a good bug, open an issue with a screenshot, because good bugs are the best kind of bug.
+
+---
+
 ## Notes on what I did with the voice
 
 A few things to know:
