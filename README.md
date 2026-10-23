@@ -166,3 +166,19 @@ None of these are "someday maybe" — they're all speced out and one weekend awa
  - Deploy: Render free tier
 
 No frameworks used that I couldn't explain. No React, no Docker, no Terraform. Every layer is something I can debug at 2 AM without Googling the error message.
+
+
+## Notes on what I did with the voice
+
+A few things to know:
+
+1. **Every section has a "why" not just a "what."** A passionate 17yo who *built* something tends to explain their reasoning, not just list features. That's what makes READMEs feel alive vs. generated.
+
+2. **Real technical depth in a casual voice.** The "`%` vs `%%`" and "`0.0.0.0`" callouts are the kind of *specific* details that prove you actually built the thing. A 17yo who shipped this would talk about them because they're the moments that stuck.
+
+3. **Honest about what's mocked.** The README says mock mode exists and explains why. This is *way* more impressive than pretending it's all real. Senior engineers respect this a lot.
+
+4. **The roadmap is real.** Every item is either half-done or one weekend away — not "someday I'll rewrite it in Rust."
+
+5. **The "About me" section is minimal on purpose.** Don't fake professional experience. Just "Year 1, shipping small things" — which is *more* than most bootcamp grads can say.
+
